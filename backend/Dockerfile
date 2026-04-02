@@ -14,13 +14,20 @@ ARG GIT_COMMIT_BRANCH
 ARG GIT_COMMIT_COUNT
 ARG GITLAB_PIPELINE_ID
 
-RUN echo "GIT_COMMIT_HASH = '${GIT_COMMIT_SHORT_SHA}'" > /app/app/version.py && \
-    echo "GIT_COMMIT_TIME = '${GIT_COMMIT_TIME}'" >> /app/app/version.py && \
-    echo "GIT_COMMIT_INFO = '${GIT_COMMIT_INFO}'" >> /app/app/version.py && \
-    echo "GIT_COMMIT_BRANCH = '${GIT_COMMIT_BRANCH}'" >> /app/app/version.py && \
-    echo "GIT_COMMIT_COUNT = '${GIT_COMMIT_COUNT}'" >> /app/app/version.py && \
-    echo "PIPELINE_ID = '${GITLAB_PIPELINE_ID}'" >> /app/app/version.py && \
-    echo "ENVIRONMENT = 'production'" >> /app/app/version.py
+RUN python3 -c "
+import sys
+def q(s): return repr(str(s))
+lines = [
+    'GIT_COMMIT_HASH = ' + q('${GIT_COMMIT_SHORT_SHA}'),
+    'GIT_COMMIT_TIME = ' + q('${GIT_COMMIT_TIME}'),
+    'GIT_COMMIT_INFO = ' + q('''${GIT_COMMIT_INFO}'''),
+    'GIT_COMMIT_BRANCH = ' + q('${GIT_COMMIT_BRANCH}'),
+    'GIT_COMMIT_COUNT = ' + q('${GIT_COMMIT_COUNT}'),
+    'PIPELINE_ID = ' + q('${GITLAB_PIPELINE_ID}'),
+    'ENVIRONMENT = ' + q('production'),
+]
+open('/app/app/version.py', 'w').write('\n'.join(lines) + '\n')
+"
 
 EXPOSE 8000
 
