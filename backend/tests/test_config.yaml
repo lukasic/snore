@@ -1,0 +1,24 @@
+secret_key: "test-secret-key"
+
+redis:
+  url: "redis://localhost:6379"
+
+users:
+  - username: testuser
+    password_hash: "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+    queues:
+      - general
+    notifications: []
+
+queues:
+  - name: general
+    flush_after_minutes: 5
+    routing_rules: []
+
+  - name: windows
+    flush_after_minutes: 5
+    routing_rules:
+      - match_host: "win-*"
+
+notifications:
+  slack_webhook: null

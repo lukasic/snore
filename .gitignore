@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Python
+*.pyc
+*.pyd
+*.pyo
+__pycache__/
+.python-version
+
+# SNORE — production config (contains secrets)
+backend/config.yaml
+
+# Frontend
+frontend/node_modules/
+frontend/dist/

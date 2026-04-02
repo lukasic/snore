@@ -1,0 +1,73 @@
+stages:
+  - build
+
+.build_template: &build_template
+  stage: build
+  image: docker:27.1.1
+  services:
+    - docker:27.1.1-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - apk add --no-cache git
+
+build:backend:
+  <<: *build_template
+  only:
+    changes:
+      - backend/*
+      - backend/**/*
+      - .gitlab-ci.yml
+  script:
+    - |
+      export COMMIT_MSG=$(git log -1 --format='%B' $CI_COMMIT_SHA | tr '\n' ' ' | sed 's/"/\\"/g' | sed 's/\$/\\$/g')
+      export COMMIT_COUNT=$(git rev-list --count HEAD)
+
+      docker build \
+        --build-arg GIT_COMMIT_SHA="$CI_COMMIT_SHA" \
+        --build-arg GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA" \
+        --build-arg GIT_COMMIT_TIME="$CI_COMMIT_TIMESTAMP" \
+        --build-arg GIT_COMMIT_INFO="$COMMIT_MSG" \
+        --build-arg GIT_COMMIT_COUNT="$COMMIT_COUNT" \
+        --build-arg GIT_COMMIT_BRANCH="$CI_COMMIT_BRANCH" \
+        --build-arg GITLAB_PIPELINE_ID=$CI_PIPELINE_ID \
+        --build-arg GITLAB_PIPELINE_IID=$CI_PIPELINE_IID \
+        --platform linux/amd64 \
+        -t $CI_REGISTRY_IMAGE/backend/$CI_COMMIT_BRANCH:$CI_COMMIT_SHA \
+        -t $CI_REGISTRY_IMAGE/backend/$CI_COMMIT_BRANCH:latest \
+        -f backend/Dockerfile \
+        backend/
+
+      docker push $CI_REGISTRY_IMAGE/backend/$CI_COMMIT_BRANCH:$CI_COMMIT_SHA
+      docker push $CI_REGISTRY_IMAGE/backend/$CI_COMMIT_BRANCH:latest
+
+build:frontend:
+  <<: *build_template
+  only:
+    changes:
+      - frontend/*
+      - frontend/**/*
+      - .gitlab-ci.yml
+  script:
+    - |
+      export COMMIT_MSG=$(git log -1 --format='%B' $CI_COMMIT_SHA | tr '\n' ' ' | sed 's/"/\\"/g' | sed 's/\$/\\$/g')
+      export COMMIT_COUNT=$(git rev-list --count HEAD)
+
+      docker build \
+        --build-arg GIT_COMMIT_SHA="$CI_COMMIT_SHA" \
+        --build-arg GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA" \
+        --build-arg GIT_COMMIT_TIME="$CI_COMMIT_TIMESTAMP" \
+        --build-arg GIT_COMMIT_INFO="$COMMIT_MSG" \
+        --build-arg GIT_COMMIT_COUNT="$COMMIT_COUNT" \
+        --build-arg GIT_COMMIT_BRANCH="$CI_COMMIT_BRANCH" \
+        --build-arg GITLAB_PIPELINE_ID=$CI_PIPELINE_ID \
+        --build-arg GITLAB_PIPELINE_IID=$CI_PIPELINE_IID \
+        --platform linux/amd64 \
+        -t $CI_REGISTRY_IMAGE/frontend/$CI_COMMIT_BRANCH:$CI_COMMIT_SHA \
+        -t $CI_REGISTRY_IMAGE/frontend/$CI_COMMIT_BRANCH:latest \
+        -f frontend/Dockerfile \
+        frontend/
+
+      docker push $CI_REGISTRY_IMAGE/frontend/$CI_COMMIT_BRANCH:$CI_COMMIT_SHA
+      docker push $CI_REGISTRY_IMAGE/frontend/$CI_COMMIT_BRANCH:latest
