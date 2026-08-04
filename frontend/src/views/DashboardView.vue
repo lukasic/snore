@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useIncidentsStore } from '@/stores/incidents'
+import { useAuthStore } from '@/stores/auth'
 import { useWebSocket } from '@/composables/useWebSocket'
 import NavBar from '@/components/NavBar.vue'
 import QueuePanel from '@/components/QueuePanel.vue'
@@ -8,6 +9,7 @@ import SchedulerCountdown from '@/components/SchedulerCountdown.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const incidents = useIncidentsStore()
+const auth = useAuthStore()
 
 const { connected, connect } = useWebSocket((msg) => {
   if (msg.type === 'incidents_updated' || msg.type === 'scheduler_tick') {
@@ -35,6 +37,13 @@ onMounted(async () => {
       </div>
 
       <template v-else>
+        <div
+          v-if="auth.user && !auth.user.has_notifications"
+          class="bg-yellow-900/40 border border-yellow-800 text-yellow-200 text-sm rounded-lg px-4 py-2.5"
+        >
+          You have no notifications configured — some features (takeover, on-call) are not available to you.
+        </div>
+
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
@@ -65,6 +74,7 @@ onMounted(async () => {
           :takeover="incidents.takeovers[String(queueName)] ?? null"
           :oncall="incidents.oncall[String(queueName)] ?? null"
           :flush-after-minutes="incidents.flushAfter[String(queueName)] ?? 0"
+          :disable-takeover-oncall="!(auth.user?.has_notifications ?? true)"
           @acknowledge="(id, q) => incidents.acknowledge(id, q)"
           @flush="incidents.flush($event)"
           @send="incidents.send($event)"

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { fetchSsoConfig, redirectToKeycloak } from '@/api/oidc'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -10,6 +11,17 @@ const username = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const ssoEnabled = ref(false)
+const ssoLoading = ref(false)
+
+onMounted(async () => {
+  try {
+    const config = await fetchSsoConfig()
+    ssoEnabled.value = config.enabled
+  } catch {
+    ssoEnabled.value = false
+  }
+})
 
 async function submit() {
   error.value = ''
@@ -21,6 +33,18 @@ async function submit() {
     error.value = 'Invalid username or password'
   } finally {
     loading.value = false
+  }
+}
+
+async function loginWithSso() {
+  error.value = ''
+  ssoLoading.value = true
+  try {
+    const config = await fetchSsoConfig()
+    await redirectToKeycloak(config)
+  } catch {
+    error.value = 'Failed to start SSO login'
+    ssoLoading.value = false
   }
 }
 </script>
@@ -72,6 +96,23 @@ async function submit() {
         >
           {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
+
+        <template v-if="ssoEnabled">
+          <div class="flex items-center gap-3 text-xs text-gray-500">
+            <span class="h-px flex-1 bg-gray-800" />
+            or
+            <span class="h-px flex-1 bg-gray-800" />
+          </div>
+
+          <button
+            type="button"
+            :disabled="ssoLoading"
+            class="w-full bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg transition-colors border border-gray-700"
+            @click="loginWithSso"
+          >
+            {{ ssoLoading ? 'Redirecting…' : 'Sign in with SSO' }}
+          </button>
+        </template>
       </form>
     </div>
   </div>

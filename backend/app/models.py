@@ -62,3 +62,13 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class SsoLoginRequest(BaseModel):
+    id_token: str
+
+
+class SsoConfigResponse(BaseModel):
+    enabled: bool
+    issuer: str | None = None
+    client_id: str | None = None

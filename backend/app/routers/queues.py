@@ -1,7 +1,7 @@
 """Queue management — dynamic on-call assignments."""
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.config import get_config
+from app.config import get_config, user_has_notifications
 from app.models import OncallRequest
 from app.routers.auth import get_current_user
 from app.store import clear_oncall, get_oncall, get_oncall_ttl, set_oncall
@@ -18,6 +18,8 @@ async def set_queue_oncall(
     request: OncallRequest,
     username: str = Depends(get_current_user),
 ) -> dict:
+    if not user_has_notifications(username):
+        raise HTTPException(status_code=403, detail="No notifications configured for this user")
     config = get_config()
     if not any(q.name == queue for q in config.queues):
         raise HTTPException(status_code=404, detail=f"Queue '{queue}' not found")

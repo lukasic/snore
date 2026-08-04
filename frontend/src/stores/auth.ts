@@ -5,6 +5,7 @@ import api from '@/api/client'
 interface Me {
   username: string
   queues: string[]
+  has_notifications: boolean
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -13,6 +14,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(username: string, password: string): Promise<void> {
     const res = await api.post<{ access_token: string }>('/auth/login', { username, password })
+    token.value = res.data.access_token
+    localStorage.setItem('snore_token', token.value)
+    await fetchMe()
+  }
+
+  async function loginSso(idToken: string): Promise<void> {
+    const res = await api.post<{ access_token: string }>('/auth/sso/login', { id_token: idToken })
     token.value = res.data.access_token
     localStorage.setItem('snore_token', token.value)
     await fetchMe()
@@ -29,5 +37,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('snore_token')
   }
 
-  return { token, user, login, fetchMe, logout }
+  return { token, user, login, loginSso, fetchMe, logout }
 })

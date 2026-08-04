@@ -11,6 +11,7 @@ defineProps<{
   takeover: TakeoverInfo | null
   oncall: OncallInfo | null
   flushAfterMinutes: number
+  disableTakeoverOncall?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -126,8 +127,11 @@ function applyOncall(queue: string): void {
         <template v-else>
           <button
             v-if="!showTakeoverInput"
-            class="text-xs bg-blue-700 hover:bg-blue-600 text-white px-2.5 py-1 rounded-lg transition-colors"
-            title="Temporarily take over this queue — you receive all notifications"
+            :disabled="disableTakeoverOncall"
+            class="text-xs bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white px-2.5 py-1 rounded-lg transition-colors"
+            :title="disableTakeoverOncall
+              ? 'No notifications configured for your user — takeover unavailable'
+              : 'Temporarily take over this queue — you receive all notifications'"
             @click="showTakeoverInput = true"
           >
             Takeover
@@ -169,8 +173,11 @@ function applyOncall(queue: string): void {
         <template v-else>
           <button
             v-if="!showOncallInput"
-            class="text-xs bg-green-700 hover:bg-green-600 text-white px-2.5 py-1 rounded-lg transition-colors"
-            title="Set dynamic on-call users for this queue"
+            :disabled="disableTakeoverOncall"
+            class="text-xs bg-green-700 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed text-white px-2.5 py-1 rounded-lg transition-colors"
+            :title="disableTakeoverOncall
+              ? 'No notifications configured for your user — on-call unavailable'
+              : 'Set dynamic on-call users for this queue'"
             @click="showOncallInput = true"
           >
             On-call

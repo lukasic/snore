@@ -8,6 +8,15 @@ users:
     password_hash: "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
     queues:
       - general
+    notifications:
+      - type: pushover
+        user_key: "test-user-key"
+        api_token: "test-api-token"
+
+  - username: nonotify
+    password_hash: "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+    queues:
+      - general
     notifications: []
 
 queues:
