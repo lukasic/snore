@@ -65,6 +65,9 @@ SNORE doesn't manage rotation schedules — that's your scheduling system's job 
 
 ## 📝 Changelog
 
+### 0.3.0
+- feat: SSO OIDC login support
+
 ### 0.2.0
 - feat: added customization of Pushover with sound and priority
 - docs: added this changelog section to README.md
