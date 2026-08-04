@@ -63,6 +63,17 @@ SNORE doesn't manage rotation schedules — that's your scheduling system's job 
 
 ---
 
+## 📝 Changelog
+
+### 0.2.0
+- feat: added customization of Pushover with sound and priority
+- docs: added this changelog section to README.md
+
+### 0.1.0
+- feat: working prototype
+
+---
+
 ## 🏗️ Stack
 
 | Layer | Technology |
