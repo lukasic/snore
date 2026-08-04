@@ -142,6 +142,8 @@ users:
       - type: pushover
         user_key: "..."
         api_token: "..."
+        priority: 1                   # optional, default 1
+        sound: "pushover"             # optional, default "pushover"
 
 queues:
   - name: general

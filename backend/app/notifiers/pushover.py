@@ -6,9 +6,11 @@ PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
 
 
 class PushoverNotifier(BaseNotifier):
-    def __init__(self, user_key: str, api_token: str) -> None:
+    def __init__(self, user_key: str, api_token: str, priority: int = 1, sound: str = "pushover") -> None:
         self.user_key = user_key
         self.api_token = api_token
+        self.priority = priority
+        self.sound = sound
 
     async def send(self, incidents: list[Incident], queue: str) -> None:
         message = format_incidents_text(incidents, queue)
@@ -17,7 +19,8 @@ class PushoverNotifier(BaseNotifier):
             "user": self.user_key,
             "title": f"SNORE: {len(incidents)} incident(s) in '{queue}'",
             "message": message[:1024],  # Pushover limit
-            "priority": 1,
+            "priority": self.priority,
+            "sound": self.sound,
         }
         async with httpx.AsyncClient() as client:
             response = await client.post(PUSHOVER_API_URL, data=payload)
