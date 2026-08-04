@@ -144,6 +144,8 @@ users:
         api_token: "..."
         priority: 1                   # optional, default 1
         sound: "pushover"             # optional, default "pushover"
+        retry: 60                     # optional, only used when priority is 2, default 60
+        expire: 1800                  # optional, only used when priority is 2, default 1800
 
 queues:
   - name: general

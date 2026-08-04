@@ -16,6 +16,8 @@ class NotificationConfig(BaseModel):
     api_token: Optional[str] = None
     priority: int = 1
     sound: str = "pushover"
+    retry: Optional[int] = None
+    expire: Optional[int] = None
 
 
 class RoutingRule(BaseModel):

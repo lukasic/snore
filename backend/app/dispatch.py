@@ -33,7 +33,17 @@ def _notifiers_for_user(username: str) -> list[tuple[BaseNotifier, str]]:
     for notif in user.notifications:
         if notif.type == "pushover" and notif.user_key and notif.api_token:
             result.append(
-                (PushoverNotifier(notif.user_key, notif.api_token, notif.priority, notif.sound), username)
+                (
+                    PushoverNotifier(
+                        notif.user_key,
+                        notif.api_token,
+                        notif.priority,
+                        notif.sound,
+                        notif.retry,
+                        notif.expire,
+                    ),
+                    username,
+                )
             )
         elif notif.type == "pagerduty" and notif.integration_key:
             result.append((PagerDutyNotifier(notif.integration_key), username))
