@@ -47,12 +47,20 @@ class RedisConfig(BaseModel):
     url: str = "redis://localhost:6379"
 
 
+class OidcConfig(BaseModel):
+    enabled: bool = False
+    issuer: Optional[str] = None
+    client_id: Optional[str] = None
+    username_claim: str = "preferred_username"
+
+
 class AppConfig(BaseModel):
     secret_key: str
     redis: RedisConfig = RedisConfig()
     users: list[UserConfig] = []
     queues: list[QueueConfig] = []
     notifications: GlobalNotifications = GlobalNotifications()
+    oidc: OidcConfig = OidcConfig()
 
 
 _config: Optional[AppConfig] = None
@@ -74,6 +82,12 @@ def get_config() -> AppConfig:
 
 def get_user(username: str) -> Optional[UserConfig]:
     return next((u for u in get_config().users if u.username == username), None)
+
+
+def user_has_notifications(username: str) -> bool:
+    """Whether the given username has at least one notification configured in config.yaml."""
+    user = get_user(username)
+    return bool(user and user.notifications)
 
 
 def get_queue_config(name: str) -> Optional[QueueConfig]:

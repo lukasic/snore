@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.config import get_config
+from app.config import get_config, user_has_notifications
 from app.dispatch import dispatch
 from app.scheduler import get_next_run_time
 from app.history import log_history
@@ -130,6 +130,8 @@ async def unmute(request: FlushRequest, username: str = Depends(get_current_user
 @router.post("/takeover")
 async def takeover(request: TakeoverRequest, username: str = Depends(get_current_user)) -> dict:
     """Temporarily take over a queue — notifications go only to the calling user."""
+    if not user_has_notifications(username):
+        raise HTTPException(status_code=403, detail="No notifications configured for this user")
     result = await set_takeover(request.queue, username, request.duration_minutes)
     await manager.broadcast(_NOTIFY)
     return {"ok": True, "username": result.username, "expires_at": result.expires_at.isoformat()}

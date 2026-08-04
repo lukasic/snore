@@ -43,3 +43,13 @@ queues:
 
 notifications:
   slack_webhook: ""  # "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+
+# Optional SSO login via an OIDC provider (e.g. Keycloak), as an alternative
+# to the password login above. Users authenticated via SSO are mapped to the
+# `users` list above by username (see oidc.username_claim); an SSO user with
+# no matching entry can still log in but will have no queues/notifications.
+oidc:
+  enabled: false
+  issuer: "https://keycloak.example.com/realms/snore"
+  client_id: "snore-frontend"
+  username_claim: "preferred_username"  # optional, default shown
