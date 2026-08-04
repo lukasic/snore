@@ -56,6 +56,9 @@ async def verify_id_token(id_token: str, oidc: OidcConfig) -> dict[str, Any]:
             algorithms=["RS256"],
             audience=oidc.client_id,
             issuer=oidc.issuer,
+            # We only ever receive the id_token, never the access_token, so
+            # there is nothing to compare at_hash against.
+            options={"verify_at_hash": False},
         )
     except httpx.HTTPError as exc:
         raise OidcError(f"Failed to fetch JWKS from issuer: {exc}") from exc
