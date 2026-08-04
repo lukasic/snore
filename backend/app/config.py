@@ -14,6 +14,10 @@ class NotificationConfig(BaseModel):
     # pushover
     user_key: Optional[str] = None
     api_token: Optional[str] = None
+    priority: int = 1
+    sound: str = "pushover"
+    retry: Optional[int] = None
+    expire: Optional[int] = None
 
 
 class RoutingRule(BaseModel):
