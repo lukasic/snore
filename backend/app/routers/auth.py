@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,7 @@ from app.config import get_config, get_user, user_has_notifications
 from app.models import LoginRequest, SsoConfigResponse, SsoLoginRequest, TokenResponse
 from app.oidc import OidcError, verify_id_token
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["auth"])
 security = HTTPBearer()
 
@@ -74,6 +76,7 @@ async def sso_login(request: SsoLoginRequest) -> TokenResponse:
     try:
         payload = await verify_id_token(request.id_token, config.oidc)
     except OidcError as exc:
+        logger.warning("SSO login rejected: %s", exc)
         raise HTTPException(status_code=401, detail=str(exc))
 
     username = payload.get(config.oidc.username_claim)
