@@ -65,6 +65,9 @@ SNORE doesn't manage rotation schedules — that's your scheduling system's job 
 
 ## 📝 Changelog
 
+### 0.3.1
+- fix(backend/queues): oncall notification check validated wrong user, causing spurious 403
+
 ### 0.3.0
 - feat: SSO OIDC login support
 
