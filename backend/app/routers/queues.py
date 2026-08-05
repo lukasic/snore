@@ -18,8 +18,6 @@ async def set_queue_oncall(
     request: OncallRequest,
     username: str = Depends(get_current_user),
 ) -> dict:
-    if not user_has_notifications(username):
-        raise HTTPException(status_code=403, detail="No notifications configured for this user")
     config = get_config()
     if not any(q.name == queue for q in config.queues):
         raise HTTPException(status_code=404, detail=f"Queue '{queue}' not found")
@@ -27,6 +25,12 @@ async def set_queue_oncall(
     unknown = [u for u in request.usernames if u not in known_users]
     if unknown:
         raise HTTPException(status_code=400, detail=f"Unknown users: {unknown}")
+    no_notifications = [u for u in request.usernames if not user_has_notifications(u)]
+    if no_notifications:
+        raise HTTPException(
+            status_code=400,
+            detail=f"No notifications configured for: {no_notifications}",
+        )
     await set_oncall(queue, request.usernames, request.duration_minutes)
     await manager.broadcast(_NOTIFY)
     return {"ok": True, "queue": queue, "usernames": request.usernames}

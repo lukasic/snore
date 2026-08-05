@@ -83,6 +83,18 @@ async def test_set_oncall_unknown_user():
 
 
 @pytest.mark.asyncio
+async def test_set_oncall_user_without_notifications():
+    with _mock_auth():
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            resp = await client.put(
+                "/api/queues/general/oncall",
+                json={"usernames": ["nonotify"]},
+                            )
+        assert resp.status_code == 400
+        assert "nonotify" in resp.json()["detail"]
+
+
+@pytest.mark.asyncio
 async def test_get_oncall_dynamic():
     with _mock_auth(), \
          patch("app.routers.queues.get_oncall", new_callable=AsyncMock, return_value=["testuser"]), \
